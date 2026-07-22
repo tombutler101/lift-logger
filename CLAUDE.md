@@ -36,6 +36,7 @@ reaches the phone. Then commit and push; GitHub Pages redeploys automatically.
   conservative.
 - Sessions 50–60 min. Prefers simplicity, likes heart-rate work.
 - Goal: strength, fat loss, and getting pull-up numbers up (currently ~2–3).
+- Current height and weight: 172cm, 87kg
 
 ## Sync (phase 2 — enabled)
 The app commits each session to this repo via the GitHub Contents API.
