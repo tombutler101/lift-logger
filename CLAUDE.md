@@ -27,6 +27,15 @@ each exercise is `{ n, sets, reps, w, step, bw?, secs?, mins?, cue?, flag? }`.
 Bump `CACHE` in `sw.js` (e.g. `liftlog-v1` → `liftlog-v2`) so the update
 reaches the phone. Then commit and push; GitHub Pages redeploys automatically.
 
+## Athlete Profile
+- Name: Tom
+- Training experience:  intermediate 
+- Goal: Strength / Fat loss / Improve pull ups
+- Schedule: 3 days a week, sessions not more that 50-60 mins
+- Equipment access: Commercial gym
+- Injuries or limitations: Bad left shoulder, minor Lower back issues
+- Height/Weight: 172cm/87kg
+
 ## Standing athlete constraints (do not program around silently — flag them)
 - Left shoulder: impingement + occasional instability on rotation/cross-body.
   Physio appointment booked. Pronated/neutral grip on vertical pulls, no
@@ -36,8 +45,7 @@ reaches the phone. Then commit and push; GitHub Pages redeploys automatically.
   conservative.
 - Sessions 50–60 min. Prefers simplicity, likes heart-rate work.
 - Goal: strength, fat loss, and getting pull-up numbers up (currently ~2–3).
-- Current height and weight: 172cm, 87kg
-
+  
 ## Sync (phase 2 — enabled)
 The app commits each session to this repo via the GitHub Contents API.
 - Settings (gear icon) hold owner / repo / branch / token in `localStorage`
