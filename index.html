@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#14161a">
+<title>Lift Logger</title>
+<link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --iron:#14161a; --plate:#1e2228; --plate-hi:#272c34;
+    --chalk:#e8e6e1; --chalk-dim:#8b9099; --rule:#333941;
+    --signal:#ffd400; --done:#4ade80; --warn:#ff6b4a;
+  }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; margin:0; }
+  html,body { background:var(--iron); color:var(--chalk); font-family:'IBM Plex Mono',ui-monospace,monospace; }
+  .wrap { max-width:560px; margin:0 auto; padding:12px 12px calc(96px + env(safe-area-inset-bottom)); min-height:100vh; }
+
+  .hdr { border-bottom:2px solid var(--signal); padding-bottom:10px; }
+  .eyebrow { font-size:10px; letter-spacing:.22em; text-transform:uppercase; color:var(--signal); }
+  h1 { font-family:'Barlow Condensed',sans-serif; font-size:36px; line-height:.92; font-weight:700; text-transform:uppercase; margin-top:3px; }
+  .sub { font-size:11px; color:var(--chalk-dim); margin-top:6px; letter-spacing:.05em; }
+
+  .picker { display:flex; gap:6px; margin:14px 0 4px; }
+  .tab {
+    flex:1; background:var(--plate); border:1px solid var(--rule); color:var(--chalk-dim);
+    border-radius:9px; padding:11px 0; font-family:'Barlow Condensed',sans-serif; font-weight:700;
+    font-size:17px; text-transform:uppercase; letter-spacing:.04em; cursor:pointer;
+  }
+  .tab.on { background:var(--signal); border-color:var(--signal); color:var(--iron); }
+  .tab small { display:block; font-family:'IBM Plex Mono',monospace; font-size:8px; font-weight:500; letter-spacing:.08em; margin-top:2px; }
+
+  .metabar { display:flex; align-items:center; gap:10px; margin:12px 0 4px; font-size:11px; color:var(--chalk-dim); }
+  .metabar .wk { display:flex; align-items:center; gap:6px; }
+  .metabar button { background:var(--plate-hi); border:0; color:var(--chalk); width:26px; height:26px; border-radius:6px; font-size:15px; cursor:pointer; font-family:inherit; }
+  .metabar b { font-family:'Barlow Condensed',sans-serif; font-size:18px; color:var(--chalk); }
+
+  .progress { display:flex; gap:3px; margin:10px 0 16px; }
+  .pip { height:4px; flex:1; background:var(--rule); border-radius:2px; }
+  .pip.on { background:var(--done); }
+
+  .card { background:var(--plate); border:1px solid var(--rule); border-radius:10px; margin-bottom:11px; overflow:hidden; }
+  .card.complete { border-color:rgba(74,222,128,.35); }
+  .card-hd { display:flex; align-items:baseline; gap:8px; padding:12px 13px 8px; }
+  .ex-name { font-family:'Barlow Condensed',sans-serif; font-size:22px; font-weight:600; text-transform:uppercase; letter-spacing:.02em; line-height:1; flex:1; }
+  .target { font-size:11px; color:var(--chalk-dim); white-space:nowrap; }
+  .cue { font-size:11px; color:var(--chalk-dim); padding:0 13px 9px; line-height:1.45; }
+  .cue.flag { color:var(--warn); }
+
+  .setrow { display:grid; grid-template-columns:24px 1fr 1fr 1fr 40px; gap:6px; align-items:center; padding:7px 10px; border-top:1px solid var(--rule); }
+  .setno { font-size:12px; color:var(--chalk-dim); }
+  .stepper { display:flex; background:var(--plate-hi); border-radius:7px; overflow:hidden; }
+  .stepper button { background:none; border:0; color:var(--chalk-dim); font-size:17px; width:28px; padding:9px 0; cursor:pointer; font-family:inherit; }
+  .stepper button:active { background:var(--rule); color:var(--chalk); }
+  .val { flex:1; text-align:center; font-size:14px; font-weight:600; padding:9px 0; min-width:0; }
+  .val small { font-size:9px; color:var(--chalk-dim); font-weight:400; }
+  .rpe-btn { background:var(--plate-hi); border:1px solid transparent; color:var(--chalk-dim); border-radius:7px; padding:10px 0; font-family:inherit; font-size:13px; font-weight:600; cursor:pointer; width:100%; }
+  .rpe-btn.set { color:var(--iron); }
+  .tick { background:var(--plate-hi); border:1px solid var(--rule); border-radius:7px; color:var(--chalk-dim); font-size:15px; padding:10px 0; cursor:pointer; width:100%; font-family:inherit; }
+  .tick.on { background:var(--done); border-color:var(--done); color:var(--iron); font-weight:700; }
+
+  .sheet-bg { position:fixed; inset:0; background:rgba(0,0,0,.72); display:none; align-items:flex-end; z-index:50; }
+  .sheet-bg.open { display:flex; }
+  .sheet { background:var(--plate); width:100%; max-width:560px; margin:0 auto; border-radius:16px 16px 0 0; padding:16px 14px calc(26px + env(safe-area-inset-bottom)); }
+  .sheet h3 { font-family:'Barlow Condensed',sans-serif; text-transform:uppercase; font-size:20px; letter-spacing:.03em; }
+  .sheet p { font-size:11px; color:var(--chalk-dim); margin:3px 0 14px; }
+  .ladder { display:flex; flex-direction:column; gap:5px; }
+  .rung { display:flex; align-items:center; gap:11px; padding:12px 13px; border-radius:8px; background:var(--plate-hi); border:0; cursor:pointer; font-family:inherit; text-align:left; color:var(--chalk); }
+  .rung b { font-family:'Barlow Condensed',sans-serif; font-size:22px; width:30px; }
+  .rung span { font-size:11px; color:var(--chalk-dim); line-height:1.35; }
+  .bar { width:5px; border-radius:3px; align-self:stretch; }
+
+  .notes { margin-top:16px; }
+  .notes label { display:block; font-size:10px; letter-spacing:.18em; text-transform:uppercase; color:var(--signal); margin-bottom:6px; }
+  textarea { width:100%; background:var(--plate); border:1px solid var(--rule); border-radius:9px; color:var(--chalk); font-family:inherit; font-size:13px; padding:11px; min-height:90px; resize:vertical; }
+  textarea:focus { outline:2px solid var(--signal); outline-offset:-1px; }
+  .save-state { font-size:10px; color:var(--chalk-dim); text-align:center; margin-top:14px; }
+
+  .bar-fixed { position:fixed; bottom:0; left:0; right:0; padding:11px 12px calc(11px + env(safe-area-inset-bottom)); background:linear-gradient(to top,var(--iron) 70%,transparent); display:flex; gap:8px; max-width:560px; margin:0 auto; }
+  .copy { flex:1; background:var(--signal); color:var(--iron); border:0; border-radius:9px; font-family:'Barlow Condensed',sans-serif; font-size:19px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; padding:15px 0; cursor:pointer; }
+  .copy:active { transform:translateY(1px); }
+  .reset { background:var(--plate); color:var(--chalk-dim); border:1px solid var(--rule); border-radius:9px; padding:0 15px; font-family:inherit; font-size:12px; cursor:pointer; }
+  .toast { position:fixed; bottom:calc(80px + env(safe-area-inset-bottom)); left:50%; transform:translateX(-50%) translateY(8px); background:var(--done); color:var(--iron); padding:9px 17px; border-radius:20px; font-size:12px; font-weight:600; opacity:0; pointer-events:none; transition:all .2s; z-index:60; }
+  .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+  .field { margin-bottom:10px; }
+  .field label { display:block; font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--chalk-dim); margin-bottom:5px; }
+  .field input { width:100%; background:var(--plate-hi); border:1px solid var(--rule); border-radius:8px; color:var(--chalk); font-family:inherit; font-size:14px; padding:11px; }
+  .field input:focus { outline:2px solid var(--signal); outline-offset:-1px; }
+  #setbtn { font-size:17px; padding:0 16px; }
+  @media (prefers-reduced-motion:reduce){ *{transition:none!important} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hdr">
+    <div class="eyebrow">Block 1 · Accumulation · Full-body rotation</div>
+    <h1 id="title">Session A</h1>
+    <div class="sub" id="subtitle"></div>
+  </div>
+
+  <div class="picker" id="picker"></div>
+
+  <div class="metabar">
+    <div class="wk">Week <button id="wkdown">−</button><b id="wknum">1</b><button id="wkup">+</button></div>
+    <div style="flex:1"></div>
+    <div id="datestr"></div>
+  </div>
+
+  <div class="progress" id="progress"></div>
+  <div id="cards"></div>
+
+  <div class="notes">
+    <label for="nt">Session notes</label>
+    <textarea id="nt" placeholder="Sleep / energy&#10;Left shoulder:&#10;Lower back:&#10;Any swaps or anything notable:"></textarea>
+  </div>
+
+  <div class="save-state" id="savestate">Saves automatically as you tap</div>
+  <div class="save-state" id="pushstate"></div>
+</div>
+
+<div class="bar-fixed">
+  <button class="reset" id="setbtn" aria-label="Settings">⚙</button>
+  <button class="reset" id="copybtn">Copy</button>
+  <button class="copy" id="pushbtn">Push log</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="sheet-bg" id="sheetbg">
+  <div class="sheet">
+    <h3>How hard was that set?</h3>
+    <p>Reps left in the tank when you racked it.</p>
+    <div class="ladder" id="ladder"></div>
+  </div>
+</div>
+
+<div class="sheet-bg" id="settingsbg">
+  <div class="sheet">
+    <h3>GitHub sync</h3>
+    <p>Fine-grained token, this repo only, Contents: read &amp; write. Stored on this device only, never in the repo.</p>
+    <div class="field"><label>Owner</label><input id="ghOwner" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="your-github-username"></div>
+    <div class="field"><label>Repo</label><input id="ghRepo" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="lift-logger"></div>
+    <div class="field"><label>Branch</label><input id="ghBranch" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="main"></div>
+    <div class="field"><label>Token</label><input id="ghToken" type="password" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="github_pat_..."></div>
+    <button class="copy" id="ghSave" style="width:100%;margin-top:12px">Save settings</button>
+    <button class="reset" id="resetbtn" style="width:100%;margin-top:8px;padding:12px 0">Reset this session's sets</button>
+    <p style="margin-top:12px">The token lives in this browser's storage — anyone with this unlocked phone can read it. Scope it to one repo so that's the only thing it can touch.</p>
+  </div>
+</div>
+
+<script>
+const RPE = [
+  { v:6,   t:'4+ left. Warm-up pace.', c:'#5b7cff' },
+  { v:7,   t:'3 left. Bar moving fast.', c:'#3fb98a' },
+  { v:7.5, t:'2–3 left.', c:'#8fbf3f' },
+  { v:8,   t:'2 left. Speed dropping.', c:'#ffd400' },
+  { v:8.5, t:'1–2 left.', c:'#ffa030' },
+  { v:9,   t:'1 left. Real grind.', c:'#ff6b4a' },
+  { v:10,  t:'Nothing left. Failure.', c:'#e03131' }
+];
+
+const PROGRAMME = {
+  A: {
+    name: 'Session A', tag: 'Pull-up strength + Squat',
+    ex: [
+      { n:'Pull-up',            sets:6, reps:1,  w:0,  step:2.5, bw:true, cue:'Fresh, hard singles/doubles. Stop 1 short of failure.' },
+      { n:'Back Squat',         sets:4, reps:8,  w:55, step:2.5, cue:'2 in reserve on set 4.' },
+      { n:'Bench Press',        sets:4, reps:8,  w:50, step:2.5, cue:'Calibration — flag if it flies up.' },
+      { n:'Chest Supported Row',sets:3, reps:10, w:0,  step:2.5, cue:'Calibrate: 10 clean @ RPE 8.' },
+      { n:'Back Extension',     sets:3, reps:12, w:0,  step:2.5, bw:true, cue:'1s pause top. Glutes, not lumbar.' },
+      { n:'Plank',              sets:3, reps:45, w:0,  step:2.5, bw:true, secs:true, cue:'Seconds, not reps.' }
+    ]
+  },
+  B: {
+    name: 'Session B', tag: 'Pull-up volume + Hinge',
+    ex: [
+      { n:'Pull-up (band)',      sets:4, reps:3,  w:0,  step:2.5, bw:true, cue:'Band-assisted, submaximal. RPE 7, never failure.' },
+      { n:'Romanian Deadlift',   sets:3, reps:10, w:35, step:2.5, cue:'35 kg. Hinge, not squat.' },
+      { n:'Barbell OHP',         sets:3, reps:8,  w:30, step:2.5, cue:'Overhead only if pain-free. Else neutral-grip DB.', flag:true },
+      { n:'Bulgarian Split Squat',sets:3,reps:10, w:0,  step:2.5, bw:true, cue:'Per leg.' },
+      { n:'Lateral Raise',       sets:3, reps:15, w:8,  step:2,   cue:'Strict, no swing.' },
+      { n:'Tricep Pushdown',     sets:3, reps:12, w:0,  step:2.5, cue:'Calibrate.' }
+    ]
+  },
+  C: {
+    name: 'Session C', tag: 'Pull-up eccentric + Deadlift',
+    ex: [
+      { n:'Pull-up Negatives', sets:3, reps:3,  w:0,  step:2.5, bw:true, cue:'Jump to top, 5-second lower.' },
+      { n:'Deadlift',          sets:3, reps:6,  w:60, step:5,   cue:'Low volume, high quality. Protects L4/L5.' },
+      { n:'Incline DB Press',  sets:3, reps:10, w:44, step:2,   cue:'Confirm: per DB or the pair?', flag:true },
+      { n:'Barbell Row',       sets:3, reps:10, w:0,  step:2.5, cue:'Calibrate.' },
+      { n:'Seated Leg Curl',   sets:3, reps:12, w:32, step:2,   cue:'' },
+      { n:'Barbell Curl',      sets:3, reps:10, w:20, step:2.5, cue:'' },
+      { n:'Finisher circuit',  sets:1, reps:8,  w:0,  step:1, bw:true, secs:false, mins:true, cue:'8 min: step-up / goblet / carry. Heart rate work.' }
+    ]
+  }
+};
+
+const $ = id => document.getElementById(id);
+let cur = 'A', week = 1, picking = null;
+let store = {};   // { "A:1": { sets:[[...]], notes:"" } }
+
+function freshSets(s) { return { sets: s.ex.map(e => Array.from({length:e.sets}, () => ({ w:e.w, reps:e.reps, rpe:null, done:false }))), notes:'' }; }
+function keyOf() { return cur + ':' + week; }
+function dateStr() { const d=new Date(); return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear(); }
+
+function loadStore() {
+  try { store = JSON.parse(localStorage.getItem('liftlog') || '{}'); } catch(e){ store = {}; }
+}
+function saveStore() {
+  try {
+    localStorage.setItem('liftlog', JSON.stringify(store));
+    $('savestate').textContent = 'Saved · ' + new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+  } catch(e) {
+    $('savestate').textContent = 'Storage blocked — copy your log before closing';
+  }
+}
+function session() {
+  const k = keyOf();
+  if (!store[k]) store[k] = freshSets(PROGRAMME[cur]);
+  return store[k];
+}
+
+function renderPicker() {
+  $('picker').innerHTML = Object.keys(PROGRAMME).map(k =>
+    `<button class="tab ${k===cur?'on':''}" data-tab="${k}">${k}<small>${PROGRAMME[k].tag.split(' + ')[0].replace('Pull-up ','PU ')}</small></button>`
+  ).join('');
+}
+function rpeColor(v){ const m=RPE.find(r=>r.v===v); return m?m.c:'transparent'; }
+
+function render() {
+  const P = PROGRAMME[cur], data = session();
+  $('title').textContent = P.name;
+  $('subtitle').textContent = P.tag;
+  $('wknum').textContent = week;
+  $('datestr').textContent = dateStr();
+  $('nt').value = data.notes;
+
+  const flat = data.sets.flat();
+  $('progress').innerHTML = flat.map(s => `<div class="pip ${s.done?'on':''}"></div>`).join('');
+
+  $('cards').innerHTML = P.ex.map((ex,i) => {
+    const allDone = data.sets[i].every(s=>s.done);
+    const unit = ex.secs ? 's' : ex.mins ? 'm' : 'rp';
+    const rows = data.sets[i].map((s,j) => `
+      <div class="setrow">
+        <div class="setno">${j+1}</div>
+        <div class="stepper">
+          <button data-a="w-" data-i="${i}" data-j="${j}">−</button>
+          <div class="val">${ex.bw && s.w===0 ? 'BW' : s.w}<small> kg</small></div>
+          <button data-a="w+" data-i="${i}" data-j="${j}">+</button>
+        </div>
+        <div class="stepper">
+          <button data-a="r-" data-i="${i}" data-j="${j}">−</button>
+          <div class="val">${s.reps}<small> ${unit}</small></div>
+          <button data-a="r+" data-i="${i}" data-j="${j}">+</button>
+        </div>
+        <button class="rpe-btn ${s.rpe!==null?'set':''}" data-a="rpe" data-i="${i}" data-j="${j}"
+          style="${s.rpe!==null?`background:${rpeColor(s.rpe)};border-color:${rpeColor(s.rpe)}`:''}">${s.rpe!==null?s.rpe:'RPE'}</button>
+        <button class="tick ${s.done?'on':''}" data-a="done" data-i="${i}" data-j="${j}">✓</button>
+      </div>`).join('');
+    return `<div class="card ${allDone?'complete':''}">
+      <div class="card-hd"><div class="ex-name">${ex.n}</div><div class="target">${ex.sets>1?ex.sets+' × ':''}${ex.reps}${ex.secs?'s':ex.mins?'min':''}</div></div>
+      ${ex.cue?`<div class="cue ${ex.flag?'flag':''}">${ex.cue}</div>`:''}
+      ${rows}</div>`;
+  }).join('');
+}
+
+document.addEventListener('click', e => {
+  const tab = e.target.closest('[data-tab]');
+  if (tab) { cur = tab.dataset.tab; renderPicker(); render(); return; }
+  const b = e.target.closest('[data-a]');
+  if (!b) return;
+  const i=+b.dataset.i, j=+b.dataset.j, data=session(), s=data.sets[i][j], step=PROGRAMME[cur].ex[i].step;
+  switch(b.dataset.a){
+    case 'w+': s.w += step; break;
+    case 'w-': s.w = Math.max(0, +(s.w-step).toFixed(2)); break;
+    case 'r+': s.reps++; break;
+    case 'r-': s.reps = Math.max(0, s.reps-1); break;
+    case 'done': s.done = !s.done; break;
+    case 'rpe': picking=[i,j]; openSheet(); return;
+  }
+  render(); saveStore();
+});
+
+function openSheet(){
+  $('ladder').innerHTML = RPE.map(r=>`<button class="rung" data-rpe="${r.v}"><div class="bar" style="background:${r.c}"></div><b>${r.v}</b><span>${r.t}</span></button>`).join('');
+  $('sheetbg').classList.add('open');
+}
+$('sheetbg').addEventListener('click', e => {
+  const r = e.target.closest('[data-rpe]');
+  if (r && picking){ const [i,j]=picking; const s=session().sets[i][j]; s.rpe=parseFloat(r.dataset.rpe); s.done=true; render(); saveStore(); }
+  $('sheetbg').classList.remove('open'); picking=null;
+});
+
+$('nt').addEventListener('input', e => { session().notes = e.target.value; saveStore(); });
+$('wkup').addEventListener('click', () => { week++; render(); });
+$('wkdown').addEventListener('click', () => { week=Math.max(1,week-1); render(); });
+
+function buildLog(){
+  const P=PROGRAMME[cur], data=session(), pad=(s,n)=>String(s).padEnd(n);
+  let out = `[${dateStr()}] — ${P.name} — ${P.tag}\nWeek ${week} | Block 1 (Accumulation)\n\n`;
+  out += `Exercise              | Sets x Reps | Weight (kg) | RPE | Notes\n`;
+  out += `---------------------------------------------------------------\n`;
+  P.ex.forEach((ex,i) => {
+    const done = data.sets[i].filter(s=>s.done);
+    if (!done.length){ out += `${pad(ex.n,21)} | NOT DONE\n`; return; }
+    const ws=[...new Set(done.map(s=> ex.bw&&s.w===0 ? 'BW' : s.w))];
+    const rs=[...new Set(done.map(s=>s.reps))];
+    const repStr = rs.length===1 ? `${done.length} x ${rs[0]}` : done.map(s=>s.reps).join('/');
+    const rp=[...new Set(done.map(s=>s.rpe??'-'))].join('/');
+    out += `${pad(ex.n,21)} | ${pad(repStr,11)} | ${pad(ws.join('/'),11)} | ${pad(rp,3)} |\n`;
+  });
+  out += `\nSession notes:\n${data.notes||'(none)'}\n`;
+  return out;
+}
+
+$('copybtn').addEventListener('click', async () => {
+  const txt = buildLog();
+  try { await navigator.clipboard.writeText(txt); toast('Log copied — paste it to Claude'); }
+  catch(e){ const ta=document.createElement('textarea'); ta.value=txt; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); toast('Log copied'); }
+});
+$('resetbtn').addEventListener('click', () => {
+  if(!confirm('Clear this session for Week '+week+'?')) return;
+  store[keyOf()] = freshSets(PROGRAMME[cur]); render(); saveStore();
+  $('settingsbg').classList.remove('open');
+});
+function toast(m){ const t=$('toast'); t.textContent=m; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),1900); }
+
+/* ---------- GitHub sync (phase 2) ---------- */
+function ghConfig(){ try { return JSON.parse(localStorage.getItem('liftlog:gh') || '{}'); } catch(e){ return {}; } }
+function saveGh(cfg){ localStorage.setItem('liftlog:gh', JSON.stringify(cfg)); }
+function setPush(msg){ $('pushstate').textContent = msg; }
+
+// UTF-8 safe base64
+function b64(str){ return btoa(unescape(encodeURIComponent(str))); }
+
+function fileName(){
+  const d = new Date();
+  const ymd = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+  return `logs/${ymd}_session${cur}_wk${week}.txt`;
+}
+
+function ghError(status, body){
+  const m = (body && body.message) ? body.message : '';
+  if (status === 401) return 'bad token (401)';
+  if (status === 403) return 'forbidden / rate limit (403)';
+  if (status === 404) return 'repo or token scope not found (404)';
+  if (status === 409 || status === 422) return 'conflict — try again (' + status + ')';
+  return (m || 'error') + ' (' + status + ')';
+}
+
+function openSettings(){
+  const g = ghConfig();
+  $('ghOwner').value  = g.owner  || '';
+  $('ghRepo').value   = g.repo   || '';
+  $('ghBranch').value = g.branch || 'main';
+  $('ghToken').value  = g.token  || '';
+  $('settingsbg').classList.add('open');
+}
+
+async function pushToGitHub(){
+  const g = ghConfig();
+  if (!g.owner || !g.repo || !g.token){ openSettings(); toast('Add your GitHub details first'); return; }
+  const branch = g.branch || 'main';
+  const path = fileName();
+  const url = `https://api.github.com/repos/${g.owner}/${g.repo}/contents/${path}`;
+  const headers = {
+    'Authorization': 'Bearer ' + g.token,
+    'Accept': 'application/vnd.github+json',
+    'X-GitHub-Api-Version': '2022-11-28'
+  };
+  setPush('Pushing…');
+  try {
+    // Does a file for this day/session/week already exist? If so we update it.
+    let sha;
+    const head = await fetch(url + '?ref=' + encodeURIComponent(branch), { headers });
+    if (head.status === 200){ const j = await head.json(); sha = j.sha; }
+    const body = {
+      message: `log: session ${cur} week ${week} (${dateStr()})`,
+      content: b64(buildLog()),
+      branch: branch
+    };
+    if (sha) body.sha = sha;
+    const res = await fetch(url, { method:'PUT', headers, body: JSON.stringify(body) });
+    if (res.ok){
+      setPush('Pushed ✓ ' + new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}));
+      toast(sha ? 'Updated in GitHub' : 'Pushed to GitHub');
+    } else {
+      const e = await res.json().catch(()=>({}));
+      setPush('Push failed: ' + ghError(res.status, e));
+      toast('Push failed — check settings');
+    }
+  } catch(err){
+    setPush('Push failed: network (offline?)');
+    toast('Push failed — offline?');
+  }
+}
+
+$('setbtn').addEventListener('click', openSettings);
+$('pushbtn').addEventListener('click', pushToGitHub);
+$('ghSave').addEventListener('click', () => {
+  saveGh({
+    owner:  $('ghOwner').value.trim(),
+    repo:   $('ghRepo').value.trim(),
+    branch: $('ghBranch').value.trim() || 'main',
+    token:  $('ghToken').value.trim()
+  });
+  $('settingsbg').classList.remove('open');
+  toast('Settings saved');
+});
+// close settings only when tapping the dark backdrop, not the panel
+$('settingsbg').addEventListener('click', e => { if (e.target === $('settingsbg')) $('settingsbg').classList.remove('open'); });
+
+if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js').catch(()=>{}); }
+
+loadStore(); renderPicker(); render();
+</script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+{
+  "name": "Lift Logger",
+  "short_name": "Lift Log",
+  "description": "Tom's training logger — full-body rotation, Block 1",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#14161a",
+  "theme_color": "#14161a",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='36' fill='%2314161a'/%3E%3Crect x='40' y='86' width='112' height='20' rx='4' fill='%23ffd400'/%3E%3Crect x='26' y='66' width='22' height='60' rx='5' fill='%23e8e6e1'/%3E%3Crect x='144' y='66' width='22' height='60' rx='5' fill='%23e8e6e1'/%3E%3C/svg%3E",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='96' fill='%2314161a'/%3E%3Crect x='106' y='230' width='300' height='52' rx='10' fill='%23ffd400'/%3E%3Crect x='70' y='176' width='58' height='160' rx='13' fill='%23e8e6e1'/%3E%3Crect x='384' y='176' width='58' height='160' rx='13' fill='%23e8e6e1'/%3E%3C/svg%3E",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}
