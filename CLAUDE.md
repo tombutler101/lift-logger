@@ -48,11 +48,13 @@ of defaulting to a stale manual counter:
   the `+1` is what makes the count roll over onto the next week the
   instant the 3rd session of a week is pushed, rather than staying on the
   old week until a 4th session is logged.
-- `seedPushedHistory()` is a one-time migration that backfills the two
-  sessions actually pushed before `liftlog:pushed` existed (Session B
-  22/07, Session C 24/07) so the count starts accurate instead of at zero.
-  It only writes if the key has never been set, so it's safe to leave in
-  permanently — it won't run again after its first execution on a device.
+- `seedPushedHistory()` backfills Week 1's three real sessions, which
+  `liftlog:pushed` can't see on its own: Session A (20/07, done before the
+  app existed — no log at all), Session B (22/07) and Session C (24/07,
+  both pushed before this tracking existed). It runs on every load via
+  `markPushed` (add-to-a-Set, so already-present entries are a no-op) —
+  intentionally not a guarded one-shot, so it self-heals a device that
+  already ran an earlier, incomplete version of this seed.
 - This suggestion pre-fills the stepper on load but stays manually
   editable via the existing +/− buttons, since a missed/skipped session
   can make the auto-count drift from reality.
