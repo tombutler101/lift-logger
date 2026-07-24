@@ -27,6 +27,25 @@ each exercise is `{ n, sets, reps, w, step, bw?, secs?, mins?, cue?, flag? }`.
 Bump `CACHE` in `sw.js` (e.g. `liftlog-v1` → `liftlog-v2`) so the update
 reaches the phone. Then commit and push; GitHub Pages redeploys automatically.
 
+## Permanent exercise swaps
+- Session B: Bulgarian Split Squat → **Goblet Squat** (24/07). Bulgarians
+  triggered lower back twinges consistent with the L4/L5 history; Goblet
+  Squat is bilateral/upright with no unilateral balance demand.
+- Session C: Seated Leg Curl → **Lying Leg Curl** (24/07), user preference.
+  The 28 kg baseline is new and not comparable to any prior seated number.
+
+## Week numbering
+"Week" is the programme week (block progression), not the calendar week.
+It only advances once Sessions A, B and C have all been banked — training
+actually done, not time elapsed — so `index.html` auto-suggests it instead
+of defaulting to a stale manual counter:
+- A session counts as complete once every set in it is ticked done.
+- Suggested week = `Math.ceil(completedSessions / 3)`, minimum 1, computed
+  from `store` (localStorage) across all sessions ever logged.
+- This suggestion pre-fills the stepper on load but stays manually
+  editable via the existing +/− buttons, since a missed/skipped session
+  can make the auto-count drift from reality.
+
 ## Athlete Profile
 - Name: Tom
 - Training experience:  intermediate 

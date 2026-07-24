@@ -36,9 +36,10 @@
   .tab small { display:block; font-family:'IBM Plex Mono',monospace; font-size:8px; font-weight:500; letter-spacing:.08em; margin-top:2px; }
 
   .metabar { display:flex; align-items:center; gap:10px; margin:12px 0 4px; font-size:11px; color:var(--chalk-dim); }
-  .metabar .wk { display:flex; align-items:center; gap:6px; }
-  .metabar button { background:var(--plate-hi); border:0; color:var(--chalk); width:26px; height:26px; border-radius:6px; font-size:15px; cursor:pointer; font-family:inherit; }
-  .metabar b { font-family:'Barlow Condensed',sans-serif; font-size:18px; color:var(--chalk); }
+  .metabar .wk { display:flex; align-items:center; gap:8px; background:var(--plate); border:1px solid var(--rule); border-radius:9px; padding:5px 8px 5px 11px; }
+  .metabar .wk-label { font-size:10px; letter-spacing:.16em; text-transform:uppercase; color:var(--chalk-dim); }
+  .metabar button { background:var(--plate-hi); border:0; color:var(--chalk); width:28px; height:28px; border-radius:7px; font-size:16px; cursor:pointer; font-family:inherit; }
+  .metabar b { font-family:'Barlow Condensed',sans-serif; font-size:28px; color:var(--signal); line-height:1; }
 
   .progress { display:flex; gap:3px; margin:10px 0 16px; }
   .pip { height:4px; flex:1; background:var(--rule); border-radius:2px; }
@@ -106,7 +107,7 @@
   <div class="picker" id="picker"></div>
 
   <div class="metabar">
-    <div class="wk">Week <button id="wkdown">−</button><b id="wknum">1</b><button id="wkup">+</button></div>
+    <div class="wk"><span class="wk-label">Week</span><button id="wkdown">−</button><b id="wknum">1</b><button id="wkup">+</button></div>
     <div style="flex:1"></div>
     <div id="datestr"></div>
   </div>
@@ -182,9 +183,9 @@ const PROGRAMME = {
       { n:'Pull-up (band)',      sets:4, reps:3,  w:0,  step:2.5, bw:true, cue:'Band-assisted, submaximal. RPE 7, never failure.' },
       { n:'Romanian Deadlift',   sets:3, reps:10, w:35, step:2.5, cue:'35 kg. Hinge, not squat.' },
       { n:'Barbell OHP',         sets:3, reps:8,  w:30, step:2.5, cue:'Overhead only if pain-free. Else neutral-grip DB.', flag:true },
-      { n:'Bulgarian Split Squat',sets:3,reps:10, w:0,  step:2.5, bw:true, cue:'Per leg.' },
-      { n:'Lateral Raise',       sets:3, reps:15, w:8,  step:2,   cue:'Strict, no swing.' },
-      { n:'Tricep Pushdown',     sets:3, reps:12, w:0,  step:2.5, cue:'Calibrate.' }
+      { n:'Goblet Squat',        sets:3, reps:10, w:0,  step:2,   cue:'Calibrate. Replaces Bulgarians — bilateral and upright, kinder on the lower back.' },
+      { n:'Lateral Raise',       sets:3, reps:12, w:10, step:2,   cue:'Strict, no swing.' },
+      { n:'Tricep Pushdown',     sets:3, reps:12, w:17.5, step:2.5, cue:'' }
     ]
   },
   C: {
@@ -192,9 +193,9 @@ const PROGRAMME = {
     ex: [
       { n:'Pull-up Negatives', sets:3, reps:3,  w:0,  step:2.5, bw:true, cue:'Jump to top, 5-second lower.' },
       { n:'Deadlift',          sets:3, reps:6,  w:60, step:5,   cue:'Low volume, high quality. Protects L4/L5.' },
-      { n:'Incline DB Press',  sets:3, reps:10, w:44, step:2,   cue:'Confirm: per DB or the pair?', flag:true },
-      { n:'Barbell Row',       sets:3, reps:10, w:0,  step:2.5, cue:'Calibrate.' },
-      { n:'Seated Leg Curl',   sets:3, reps:12, w:32, step:2,   cue:'' },
+      { n:'Incline DB Press',  sets:3, reps:10, w:20, step:2,   cue:'Per dumbbell, not the pair' },
+      { n:'Barbell Row',       sets:3, reps:10, w:40, step:2.5, cue:'' },
+      { n:'Lying Leg Curl',    sets:3, reps:12, w:28, step:2,   cue:'' },
       { n:'Barbell Curl',      sets:3, reps:10, w:20, step:2.5, cue:'' },
       { n:'Finisher circuit',  sets:1, reps:8,  w:0,  step:1, bw:true, secs:false, mins:true, cue:'8 min: step-up / goblet / carry. Heart rate work.' }
     ]
@@ -225,6 +226,18 @@ function session() {
   if (!store[k]) store[k] = freshSets(PROGRAMME[cur]);
   return store[k];
 }
+
+// A session counts as complete once every set in it is ticked done.
+// Programme week for the NEXT session = ceil((completed + 1) / 3) — this is
+// what makes the count roll over the instant the 3rd session of a week is
+// banked, instead of sitting stale on the old week until a 4th is logged.
+function completedSessionsCount() {
+  return Object.keys(store).filter(k => {
+    const tab = k.split(':')[0], rec = store[k];
+    return PROGRAMME[tab] && rec.sets.length && rec.sets.every(set => set.every(s => s.done));
+  }).length;
+}
+function suggestedWeek() { return Math.max(1, Math.ceil((completedSessionsCount() + 1) / 3)); }
 
 function renderPicker() {
   $('picker').innerHTML = Object.keys(PROGRAMME).map(k =>
@@ -419,7 +432,7 @@ $('settingsbg').addEventListener('click', e => { if (e.target === $('settingsbg'
 
 if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js').catch(()=>{}); }
 
-loadStore(); renderPicker(); render();
+loadStore(); week = suggestedWeek(); renderPicker(); render();
 </script>
 </body>
 </html>
