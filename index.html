@@ -239,6 +239,16 @@ function markPushed(key) {
   localStorage.setItem('liftlog:pushed', JSON.stringify([...s]));
 }
 function completedSessionsCount() { return loadPushed().size; }
+
+// One-time migration: the two sessions actually pushed before this tracking
+// existed (logs/2026-07-22_sessionB_wk1.txt, logs/2026-07-24_sessionC_wk1.txt)
+// are invisible to loadPushed() otherwise. Only runs if the key has never
+// been set, so it can't clobber real data once this has run once.
+function seedPushedHistory() {
+  if (localStorage.getItem('liftlog:pushed') === null) {
+    localStorage.setItem('liftlog:pushed', JSON.stringify(['2026-07-22_B', '2026-07-24_C']));
+  }
+}
 // Programme week for the NEXT session = ceil((completed + 1) / 3) — this is
 // what makes the count roll over the instant the 3rd session of a week is
 // banked, instead of sitting stale on the old week until a 4th is logged.
@@ -438,7 +448,7 @@ $('settingsbg').addEventListener('click', e => { if (e.target === $('settingsbg'
 
 if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js').catch(()=>{}); }
 
-loadStore(); week = suggestedWeek(); renderPicker(); render();
+loadStore(); seedPushedHistory(); week = suggestedWeek(); renderPicker(); render();
 </script>
 </body>
 </html>
