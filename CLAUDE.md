@@ -39,9 +39,15 @@ reaches the phone. Then commit and push; GitHub Pages redeploys automatically.
 It only advances once Sessions A, B and C have all been banked — training
 actually done, not time elapsed — so `index.html` auto-suggests it instead
 of defaulting to a stale manual counter:
-- A session counts as complete once every set in it is ticked done.
-- Suggested week = `Math.ceil(completedSessions / 3)`, minimum 1, computed
-  from `store` (localStorage) across all sessions ever logged.
+- A session counts as complete once it's been **pushed to GitHub** (not
+  when its sets are ticked — ticking can happen without a push, and the
+  push is the real "banked" signal). Tracked in `localStorage` under
+  `liftlog:pushed` as a set of `YYYY-MM-DD_<session letter>` keys, so
+  re-pushing a corrected log for the same day/session doesn't double-count.
+- Suggested week = `Math.ceil((completedSessions + 1) / 3)`, minimum 1 —
+  the `+1` is what makes the count roll over onto the next week the
+  instant the 3rd session of a week is pushed, rather than staying on the
+  old week until a 4th session is logged.
 - This suggestion pre-fills the stepper on load but stays manually
   editable via the existing +/− buttons, since a missed/skipped session
   can make the auto-count drift from reality.

@@ -227,16 +227,21 @@ function session() {
   return store[k];
 }
 
-// A session counts as complete once every set in it is ticked done.
+// A session counts as complete once it's been pushed to GitHub — that's the
+// real "banked" signal, not local set-ticking. Keyed by date+letter (not
+// week) so re-pushing a corrected log doesn't double-count.
+function loadPushed() {
+  try { return new Set(JSON.parse(localStorage.getItem('liftlog:pushed') || '[]')); }
+  catch(e) { return new Set(); }
+}
+function markPushed(key) {
+  const s = loadPushed(); s.add(key);
+  localStorage.setItem('liftlog:pushed', JSON.stringify([...s]));
+}
+function completedSessionsCount() { return loadPushed().size; }
 // Programme week for the NEXT session = ceil((completed + 1) / 3) — this is
 // what makes the count roll over the instant the 3rd session of a week is
 // banked, instead of sitting stale on the old week until a 4th is logged.
-function completedSessionsCount() {
-  return Object.keys(store).filter(k => {
-    const tab = k.split(':')[0], rec = store[k];
-    return PROGRAMME[tab] && rec.sets.length && rec.sets.every(set => set.every(s => s.done));
-  }).length;
-}
 function suggestedWeek() { return Math.max(1, Math.ceil((completedSessionsCount() + 1) / 3)); }
 
 function renderPicker() {
@@ -353,11 +358,11 @@ function setPush(msg){ $('pushstate').textContent = msg; }
 // UTF-8 safe base64
 function b64(str){ return btoa(unescape(encodeURIComponent(str))); }
 
-function fileName(){
+function ymdStr(){
   const d = new Date();
-  const ymd = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
-  return `logs/${ymd}_session${cur}_wk${week}.txt`;
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
 }
+function fileName(){ return `logs/${ymdStr()}_session${cur}_wk${week}.txt`; }
 
 function ghError(status, body){
   const m = (body && body.message) ? body.message : '';
@@ -402,6 +407,7 @@ async function pushToGitHub(){
     if (sha) body.sha = sha;
     const res = await fetch(url, { method:'PUT', headers, body: JSON.stringify(body) });
     if (res.ok){
+      markPushed(ymdStr() + '_' + cur);
       setPush('Pushed ✓ ' + new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}));
       toast(sha ? 'Updated in GitHub' : 'Pushed to GitHub');
     } else {
