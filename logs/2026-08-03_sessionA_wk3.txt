@@ -1,0 +1,14 @@
+[03/08/2026] — Session A — Pull-up strength + Squat
+Week 3 | Block 1 (Accumulation)
+
+Exercise              | Sets x Reps | Weight (kg) | RPE | Notes
+---------------------------------------------------------------
+Pull-up               | 6 x 1       | BW          | 9   |
+Back Squat            | 4 x 8       | 60          | 8   |
+Bench Press           | 4 x 8       | 60          | 8   |
+Chest Supported Row   | 3 x 10      | 20          | 8   |
+Back Extension        | 3 x 12      | BW          | 8   |
+Plank                 | 3 x 45      | BW          | 8   |
+
+Session notes:
+(none)
