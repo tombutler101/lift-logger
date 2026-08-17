@@ -1,5 +1,5 @@
 // Minimal offline cache. Bump CACHE when you change index.html.
-const CACHE = 'liftlog-v9';
+const CACHE = 'liftlog-v10';
 const ASSETS = ['./', './index.html', './manifest.json'];
 
 self.addEventListener('install', e => {

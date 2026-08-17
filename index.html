@@ -99,7 +99,7 @@
 <body>
 <div class="wrap">
   <div class="hdr">
-    <div class="eyebrow">Block 1 · Accumulation · Full-body rotation</div>
+    <div class="eyebrow">Block 2 · Intensification · Full-body rotation</div>
     <h1 id="title">Session A</h1>
     <div class="sub" id="subtitle"></div>
   </div>
@@ -338,7 +338,7 @@ $('wkdown').addEventListener('click', () => { week=Math.max(1,week-1); render();
 
 function buildLog(){
   const P=PROGRAMME[cur], data=session(), pad=(s,n)=>String(s).padEnd(n);
-  let out = `[${dateStr()}] — ${P.name} — ${P.tag}\nWeek ${week} | Block 1 (Accumulation)\n\n`;
+  let out = `[${dateStr()}] — ${P.name} — ${P.tag}\nWeek ${week} | Block 2 (Intensification)\n\n`;
   out += `Exercise              | Sets x Reps | Weight (kg) | RPE | Notes\n`;
   out += `---------------------------------------------------------------\n`;
   P.ex.forEach((ex,i) => {
