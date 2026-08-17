@@ -169,29 +169,34 @@ const PROGRAMME = {
   A: {
     name: 'Session A', tag: 'Pull-up strength + Squat',
     ex: [
+      { n:'Warm-up: Glute Bridge',sets:1, reps:12, w:0,  step:2.5, bw:true, cue:"Part of warm-up. 1s squeeze at top. Activation for glutes so the hinge/squat work doesn't overload hamstrings." },
       { n:'Pull-up MAX (fresh)',sets:1, reps:3,  w:0,  step:2.5, bw:true, cue:'First thing, fully rested — one all-out strict set. Log reps, and note if the last rep was clean or a grind. This is the benchmark for the goal.' },
       { n:'Pull-up',            sets:6, reps:1,  w:0,  step:2.5, bw:true, cue:'Cap at RPE 8 — stop the moment bar speed drops. Fewer clean singles beat grinding reps. Full rest between.' },
       { n:'Back Squat',         sets:4, reps:8,  w:65, step:2.5, cue:'2 in reserve on set 4.' },
       { n:'Bench Press',        sets:4, reps:8,  w:60, step:2.5, cue:'Calibration — flag if it flies up.' },
       { n:'Chest Supported Row',sets:3, reps:10, w:20, step:2.5, cue:'Calibrate: 10 clean @ RPE 8.' },
       { n:'Back Extension',     sets:3, reps:12, w:0,  step:2.5, bw:true, cue:'1s pause top. Glutes, not lumbar.' },
-      { n:'Plank',              sets:3, reps:45, w:0,  step:2.5, bw:true, secs:true, cue:'Seconds, not reps.' }
+      { n:'Plank',              sets:3, reps:45, w:0,  step:2.5, bw:true, secs:true, cue:'Seconds, not reps.' },
+      { n:'Core: Pallof Press', sets:3, reps:10, w:0,  step:2.5, bw:true, cue:'Per side. Superset into an earlier rest if short on time. Anti-rotation, no spinal load.' }
     ]
   },
   B: {
     name: 'Session B', tag: 'Pull-up volume + Hinge',
     ex: [
+      { n:'Warm-up: Glute Bridge',sets:1, reps:12, w:0,  step:2.5, bw:true, cue:"Part of warm-up. 1s squeeze at top. Activation for glutes so the hinge/squat work doesn't overload hamstrings." },
       { n:'Pull-up (band)',      sets:4, reps:3,  w:0,  step:2.5, bw:true, cue:'Band-assisted, submaximal. RPE 7, never failure.' },
       { n:'Romanian Deadlift',   sets:3, reps:10, w:35, step:2.5, cue:'35 kg. Hinge, not squat.' },
       { n:'Barbell OHP',         sets:3, reps:8,  w:30, step:2.5, cue:'Overhead only if pain-free. Else neutral-grip DB.', flag:true },
       { n:'Goblet Squat',        sets:3, reps:10, w:24, step:2,   cue:'Calibrate. Replaces Bulgarians — bilateral and upright, kinder on the lower back.' },
       { n:'Lateral Raise',       sets:3, reps:12, w:10, step:2,   cue:'Strict, no swing.' },
-      { n:'Tricep Pushdown',     sets:3, reps:12, w:35, step:2.5, cue:'' }
+      { n:'Tricep Pushdown',     sets:3, reps:12, w:35, step:2.5, cue:'' },
+      { n:'Core: Dead Bug',      sets:3, reps:8,  w:0,  step:2.5, bw:true, cue:'Per side. Superset into an earlier rest if short on time. Low back flat throughout.' }
     ]
   },
   C: {
     name: 'Session C', tag: 'Pull-up eccentric + Deadlift',
     ex: [
+      { n:'Warm-up: Glute Bridge',sets:1, reps:12, w:0,  step:2.5, bw:true, cue:"Part of warm-up. 1s squeeze at top. Activation for glutes so the hinge/squat work doesn't overload hamstrings." },
       { n:'Pull-up Negatives', sets:3, reps:3,  w:0,  step:2.5, bw:true, cue:'Jump to top, 5-second lower.' },
       { n:'Deadlift',          sets:3, reps:6,  w:70, step:5,   cue:'Low volume, high quality. Protects L4/L5.' },
       { n:'Incline DB Press',  sets:3, reps:10, w:20, step:2,   cue:'Per dumbbell, not the pair' },

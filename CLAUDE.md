@@ -34,6 +34,21 @@ reaches the phone. Then commit and push; GitHub Pages redeploys automatically.
 - Session C: Seated Leg Curl → **Lying Leg Curl** (24/07), user preference.
   The 28 kg baseline is new and not comparable to any prior seated number.
 
+## Warm-up / core additions (17/08)
+- Every session now opens with **Warm-up: Glute Bridge** (bodyweight,
+  activation only) — the athlete already does a broader mobility routine
+  (World's Greatest Stretch, yoga-style movements) outside the app, so this
+  stays minimal rather than duplicating that.
+- Session A ends with **Core: Pallof Press**; Session B ends with
+  **Core: Dead Bug**. Session C has no core add-on — it already runs long
+  (lifts + an 8-min finisher circuit).
+- These are bodyweight warm-up/accessory entries, not part of the
+  progressive-overload weight tracking.
+- **Sessions are capped at 50–60 min and already tend to run over.** Don't
+  add further volume to the programme without removing something —
+  flag the time-budget tension instead of silently stacking new exercises
+  onto an already-dense session (e.g. Session C).
+
 ## Week numbering
 "Week" is the programme week (block progression), not the calendar week.
 It only advances once Sessions A, B and C have all been banked — training
